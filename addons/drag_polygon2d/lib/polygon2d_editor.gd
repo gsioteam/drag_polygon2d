@@ -11,6 +11,8 @@ var canvas
 
 var handlers = []
 
+var undo_redo: UndoRedo
+
 var _dragging = false
 var _old_position
 
@@ -72,6 +74,8 @@ func _updatePoints():
 		}
 		index+=1
 		handle.connect("drag", self, "_on_drag")
+		handle.connect("drag_begin", self, "_on_drag_begin")
+		handle.connect("drag_end", self, "_on_drag_end")
 	
 	content.rect_scale = Vector2(2, 2)
 	polygon2d.position = Vector2(- (min_vec.x + max_vec.x)/2, - (min_vec.y + max_vec.y)/2)
@@ -80,11 +84,23 @@ func _on_drag(data, offset):
 	var index = data.index
 	offset.x = offset.x / content.rect_scale.x
 	offset.y = offset.y / content.rect_scale.y
-	var vec = polygon2d.polygon[index] + offset
-	polygon2d.polygon[index] = vec
-	handlers[index].rect_position = vec
-	target.polygon = polygon2d.polygon
-	canvas.update()
+	var old = polygon2d.polygon[index]
+	var vec = old + offset
+	_set_point(vec, index)
+
+var _begin_position
+
+func _on_drag_begin(data):
+	var index = data.index
+	_begin_position = polygon2d.polygon[index]
+	
+func _on_drag_end(data):
+	var index = data.index
+	var pos = polygon2d.polygon[index]
+	undo_redo.create_action("Drag Point")
+	undo_redo.add_do_method(self, "_set_point", pos, index)
+	undo_redo.add_undo_method(self, "_set_point", _begin_position, index)
+	undo_redo.commit_action()
 
 func _on_container_gui_input(event):
 	var zoom_pos
@@ -102,7 +118,11 @@ func _on_container_gui_input(event):
 			content.rect_position += (event.global_position - _old_position)
 			_old_position = event.global_position
 			
-
-
 func _on_container_visibility_changed():
 	content.rect_position = container.rect_size / 2
+
+func _set_point(point, index):
+	polygon2d.polygon[index] = point
+	handlers[index].rect_position = point
+	target.polygon = polygon2d.polygon
+	canvas.update()
