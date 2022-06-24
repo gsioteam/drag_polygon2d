@@ -7,6 +7,7 @@ var editor_pannel
 
 func _enter_tree():
 	editor_pannel = Polygon2DEditorPanel.instance()
+	editor_pannel.undo_redo = get_undo_redo()
 	add_control_to_bottom_panel(editor_pannel, "Polygon2D")
 	get_editor_interface().get_selection().connect("selection_changed", self, "_on_selection_changed")
 	make_visible(false)
@@ -43,3 +44,4 @@ func _on_selection_changed():
 	
 func apply_changes():
 	pass
+
