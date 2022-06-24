@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://addons/drag_polygon2d/lib/polygon2d_editor.gd" type="Script" id=1]
+[ext_resource path="res://addons/drag_polygon2d/lib/canvas.gd" type="Script" id=2]
+
+[node name="Polygon2DEditor" type="Control"]
+anchor_right = 1.0
+margin_bottom = 400.0
+rect_min_size = Vector2( 0, 360 )
+size_flags_horizontal = 3
+script = ExtResource( 1 )
+
+[node name="vbox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="container" type="Control" parent="vbox"]
+margin_right = 1024.0
+margin_bottom = 400.0
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="content" type="Control" parent="vbox/container"]
+margin_left = 512.0
+margin_top = 200.0
+margin_right = 512.0
+margin_bottom = 200.0
+
+[node name="polygon" type="Polygon2D" parent="vbox/container/content"]
+
+[node name="canvas" type="Node2D" parent="vbox/container/content/polygon"]
+script = ExtResource( 2 )
+
+[connection signal="gui_input" from="vbox/container" to="." method="_on_container_gui_input"]
+[connection signal="visibility_changed" from="vbox/container" to="." method="_on_container_visibility_changed"]
